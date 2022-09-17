@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+import { registerRoute } from '../utils/APIRoutes';
 
 const FormContainer = styled.div`
   height: 100vh;
@@ -10,7 +13,7 @@ const FormContainer = styled.div`
   justify-content: center;
   gap: 1rem;
   align-items: center;
-  background-color: #F9F2ED;
+  background-color: #35589A;
 
   .brand {
     display: flex;
@@ -106,15 +109,64 @@ const Register = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate()
+
+  const toastOptions = {
+    position: 'bottom-right',
+    autoClose: 8000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: 'dark'
+  }
+
+  const handleValidation = () => {
+    if(password !== confirmPassword) {
+      toast.error('Password & Confirm Password should be same', toastOptions)
+      return false
+    } else if(username.length < 3) {
+      toast.error('Username should be greater than 3 characters', toastOptions)
+      return false
+    } else if(password.length < 8) {
+      toast.error('Password should be greater than 8 characters', toastOptions)
+      return false
+    } else if(email === '') {
+      toast.error('Email is required', toastOptions)
+      return false
+    }
+    return true
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    alert('form')
+    if(handleValidation()) {
+      console.log("in validation: ", registerRoute)
+      const data = { username, email, password}
+      const response = await fetch(registerRoute , {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      })
+      const json = await response.json()
+      if(!response.ok) {
+        toast.error(json.msg, toastOptions)
+      }
+      if(response.ok) {
+        setUsername('')
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+        localStorage.setItem("chat-app-user", JSON.stringify(json))
+        navigate("/")
+      }
+    }
   }
 
   return (
     <>
       <FormContainer>
-        <form action="" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="brand">
             <h1>Register</h1>
           </div>
@@ -122,17 +174,17 @@ const Register = () => {
             <h5>Enter a Username</h5>
             <input 
             type="text" 
-            name="username"
+            name="email"
             onChange={(e) => setUsername(e.target.value)} />
             <h5>Enter a email</h5>
             <input 
             type="text" 
-            name="username"
+            name="password"
             onChange={(e) => setEmail(e.target.value)} />
             <h5>Enter a password</h5>
             <input 
             type="password" 
-            name="username"
+            name="confirmPassword"
             onChange={(e) => setPassword(e.target.value)} />
             <h5>Enter a confirm password</h5>
             <input 
@@ -144,6 +196,7 @@ const Register = () => {
           <span>Already have an account ? <Link to="/login">Login</Link></span>
         </form>
       </FormContainer>
+      <ToastContainer />
     </>
   )
 }
