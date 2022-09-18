@@ -13,7 +13,7 @@ const FormContainer = styled.div`
   justify-content: center;
   gap: 1rem;
   align-items: center;
-  background-color: #35589A;
+  background-color: #131324;
 
   .brand {
     display: flex;
@@ -132,7 +132,7 @@ const Login = () => {
     e.preventDefault()
     if(handleValidation()) {
       console.log("in validation: ", loginRoute)
-      const data = { email, password}
+      const data = { email, password }
       const response = await fetch(loginRoute , {
         method: 'POST',
         body: JSON.stringify(data),
@@ -141,10 +141,10 @@ const Login = () => {
         }
       })
       const json = await response.json()
-      if(!response.ok) {
+      if(json.status === false) {
         toast.error(json.msg, toastOptions)
       }
-      if(response.ok) {
+      if(json.status === true) {
         setEmail('')
         setPassword('')
         localStorage.setItem("chat-app-user", JSON.stringify(json))
