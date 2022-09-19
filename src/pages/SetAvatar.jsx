@@ -113,6 +113,8 @@ const SetAvatar = () => {
   const setProfilePicture = async () => {
     if(selectedAvatar === undefined) {
       toast.error("Please select an avatar", toastOptions)
+    } else {
+
     }
   }
 
@@ -134,7 +136,6 @@ const SetAvatar = () => {
         </div>
         <div className="avatars">
           {avatars.map((avatar,index) => {
-            console.log(avatar)
             return (
               <div
                key={index}
